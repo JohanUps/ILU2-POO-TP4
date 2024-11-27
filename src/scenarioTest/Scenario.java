@@ -1,15 +1,100 @@
 package scenarioTest;
 
 import personnages.Gaulois;
-import produits.Poisson;
-import produits.Sanglier;
+import produit.IProduit;
+import produit.Poisson;
+import produit.Sanglier;
 import villagegaulois.Etal;
+import villagegaulois.IVillage;
 
 public class Scenario {
 
 	public static void main(String[] args) {
 
-		// TODO Partie 4 : creer de la classe anonyme Village
+		//Partie 4 : creer de la classe anonyme Village
+		IVillage village = new IVillage() {
+            private Etal[] marche = new Etal[3];
+
+            @Override
+            public <P extends IProduit> boolean installerVendeur(Etal<P> etal, Gaulois vendeur, P[] produits, int prix) {
+                for (int i = 0; i < marche.length; i++) {
+                    if (marche[i] == null) { 
+                        etal.installerVendeur(vendeur, produits, prix); 
+                        marche[i] = etal; 
+                        return true;
+                    }
+                }
+                return false;
+            }
+
+            @Override
+            public void acheterProduit(String produit, int quantiteSouhaitee) {
+            	StringBuilder message = new StringBuilder();
+            	int quantiteAcheter = 0;
+            	int quantiteAcheterEtal = 0;
+            	
+            	int i = 0;
+            	while(i<marche.length && quantiteAcheter<quantiteSouhaitee) {
+            		if (marche[i] != null && marche[i].contientProduit(produit,quantiteSouhaitee) > 0) {
+            			
+            			if(marche[i].contientProduit(produit, quantiteSouhaitee)<= quantiteSouhaitee - quantiteAcheter) {
+            				quantiteAcheterEtal = marche[i].contientProduit(produit, quantiteSouhaitee);
+            			}
+            			else {
+            				quantiteAcheterEtal = quantiteSouhaitee - quantiteAcheter;
+            			}
+            			
+            			quantiteAcheter += quantiteAcheterEtal;
+            			int prix = marche[i].acheterProduit(quantiteAcheterEtal);
+            			message.append("A l'étal n°");
+            			message.append(i+1);
+            			message.append(" j'achète ");
+            			message.append(quantiteAcheterEtal);
+            			message.append(" ");
+            			message.append(produit);
+            			message.append(" et je paye ");
+            			message.append(prix);
+            			message.append("\n");
+            		}
+            		i++;
+            	}
+            	message.append("Je voulais acheter ");
+            	message.append(quantiteSouhaitee);
+            	message.append(" ");
+            	message.append(produit);
+            	message.append(", j'en ai acheter ");
+            	message.append(quantiteAcheter);
+            	message.append("\n");
+            	
+            	System.out.println(message.toString());
+            }
+			
+			
+            @Override
+            public String toString(){
+            	StringBuilder affichage = new StringBuilder();
+            	for(int i = 0; i<marche.length; i++) {
+            		if(marche[i] != null) {
+            			affichage.append(marche[i].etatEtal());
+            		}
+            		else {
+            			affichage.append("Etal n°");
+            			affichage.append(i+1);
+            			affichage.append(" vide");
+            		}
+            		affichage.append("\n");
+            	}
+            	return affichage.toString();
+            }
+			
+			
+			
+			
+			
+			
+			
+			
+		};
 
 		// fin
 
